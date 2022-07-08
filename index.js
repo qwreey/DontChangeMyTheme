@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron")
+const { app, BrowserWindow, ipcMain } = require("electron")
 const path = require("path")
 const fs = require("fs")
 
@@ -34,40 +34,25 @@ function createWindow() {
 	win.on("closed", () => {
 		win = null
 	})
-
-	try {
-		let initPath = path.join(app.getPath("appData"), "school_meals.json")
-		let data = JSON.parse(fs.readFileSync(initPath, 'utf8'))
-		win.setPosition(data.x,data.y)
-	} catch {}
-	
-	function update() {
-		try {
-			let [x,y] = win.getPosition()
-			let initPath = path.join(app.getPath("appData"), "school_meals.json")
-			fs.writeFileSync(initPath,JSON.stringify({x:x,y:y}))
-		} catch {}
-	}
-	win.on('close', update)
-	win.on("moved", update)
-
-	// win.removeMenu() // prevent ctrl w and ctrl r
 }
 
 app.on("ready", createWindow)
-
 app.on("window-all-closed", () => {
-	app.quit()
+	if (process.platform !== 'darwin') app.quit()
 })
-
-app.on("activate", () => {
-	if (win === null) {
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
 		createWindow()
-	}
+    }
 })
 
-// If development environment
-const env = process.env.NODE_ENV || 'development';
+// send data
+ipcMain.handle('requestExecution',async (event,arg) => {
+	return "Hello world"
+})
+
+// live reload
+const env = process.env.NODE_ENV || 'none';
 if (env === 'development') {
     require('electron-reload')(__dirname, {
         electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),

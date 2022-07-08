@@ -20,13 +20,20 @@
     "electronmon": "^1.1.2"
   },
   "build": {
-    "productName": "School-Meals",
-    "appId": "com.github.qwreey75.school_meals",
+    "productName": "Dont-Change-My-Theme",
+    "appId": "com.github.qwreey75.dontchangemytheme",
+    "files": [
+      "src/","index.js","config.json","package.json"
+    ],
     "win": {
       "icon": "assets/icons/win/icon.ico",
       "target": [
         "portable"
       ]
+    },
+    "portable": {
+      "artifactName": "DontChangeMyTheme.exe",
+      "requestExecutionLevel": "admin"
     },
     "nsis": {
       "oneClick": false,
