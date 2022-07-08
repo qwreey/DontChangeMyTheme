@@ -3,9 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나의 배경을 바꾸지 마세요</title>
+    <link rel="stylesheet" href="./material/material.min.css">
+    <link rel="stylesheet" href="./material/icons.css">
+    <script defer src="./material/material.min.js"></script>
+    <link rel="stylesheet" href="./index.css">
+    <title>윈도우 테마 변경 방지</title>
 </head>
 <body>
-    이것은 뭔지 나도 모르겠습니다
+    <div class="mdl-layout mdl-js-layout mdl-layout--no-drawer-button mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+            <div class="mdl-layout-icon">
+                <span class="material-symbols-outlined">
+                    build
+                </span>
+            </div>
+            <span class="mdl-layout-title">&nbsp;&nbsp;변경 방지</span>
+            <div class="mdl-layout-spacer"></div>
+            <a class="mdl-navigation__link" onclick="openInBrowser('')">
+                <span class="material-symbols-outlined">
+                    code
+                </span>
+                Github
+            </a>
+            </div>
+        </header>
+        <main class="mdl-layout__content">
+            <div class="page-content">
+
+            </div>
+        </main>
+    </div>
 </body>
 </html>

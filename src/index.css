@@ -1,3 +1,12 @@
 body {
     user-select: none;
 }
+
+.mdl-navigation__link {
+    display: flex !important;
+    align-items: center;
+}
+
+.mdl-navigation__link .material-symbols-outlined {
+    margin-right: 6px;
+}

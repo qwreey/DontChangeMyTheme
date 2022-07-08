@@ -15,8 +15,8 @@ function createWindow() {
 		height: parseInt(winSize[1]),
 		frame: true,
 		resizable: true,
-        minHeight: parseInt(minWinSize[0]),
-        minWidth: parseInt(minWinSize[1]),
+        minWidth: parseInt(minWinSize[0]),
+        minHeight: parseInt(minWinSize[1]),
 		webPreferences: {
 			preload: path.join(__dirname, "preload.js"),
 			nodeIntegration: true,
@@ -25,7 +25,11 @@ function createWindow() {
 		},
 	})
 	win.loadFile("src/index.html")
-    win.removeMenu()
+	if (env !== 'development') {
+		win.removeMenu()
+	} else {
+		win.setAlwaysOnTop(true)
+	}
 
 	win.on("closed", () => {
 		win = null
@@ -61,3 +65,12 @@ app.on("activate", () => {
 		createWindow()
 	}
 })
+
+// If development environment
+const env = process.env.NODE_ENV || 'development';
+if (env === 'development') {
+    require('electron-reload')(__dirname, {
+        electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+        hardResetMethod: 'exit'
+    });
+}
