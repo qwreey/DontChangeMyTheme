@@ -1,0 +1,36 @@
+{
+  "name": "dont_change_my_theme",
+  "version": "1.0.0",
+  "description": "Prevent changing wallpaper, theme, cusor and more on windows 10",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "windows"
+  ],
+  "author": "qwreey75@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^19.0.0",
+    "electron-builder": "^22.7.0",
+    "electronmon": "^1.1.2"
+  },
+  "build": {
+    "productName": "School-Meals",
+    "appId": "com.github.qwreey75.school_meals",
+    "win": {
+      "icon": "assets/icons/win/icon.ico",
+      "target": [
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "directories": {
+      "app": "."
+    }
+  }
+}
