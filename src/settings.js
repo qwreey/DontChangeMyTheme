@@ -43,11 +43,11 @@ module.exports = [
 	},
 
 	// 보안설정 칸
-	{
-		category: 'security',
-		type: 'title',
-		title: '보안설정',
-	},
+	// {
+	// 	category: 'security',
+	// 	type: 'title',
+	// 	title: '보안설정',
+	// },
 	{
 		category: 'security',
 		type: 'title',
@@ -59,5 +59,43 @@ module.exports = [
 		title: '프로그램 홈페이지 & 도움말',
 		icon: 'help',
 		url: 'https://qwreey75.github.io/dontChangeMyTheme'
+	},
+	{
+		category: 'security',
+		type: 'link',
+		title: '깃허브 & 소스코드',
+		icon: 'data_object',
+		url: 'https://github.com/qwreey75/DontChangeMyTheme'
+	},
+	{
+		category: 'security',
+		type: 'link',
+		title: '개발자의 깃허브 프로필',
+		icon: 'account_circle',
+		url: 'https://github.com/qwreey75'
+	},
+	{
+		category: 'security',
+		type: 'text',
+		title: '이메일 : qwreey75@gmail.com',
+		style: [
+			['fontSize','0.9em'],
+			['width','100%'],
+			['text-align','center'],
+			['margin','6px 0px 0px 6px']
+		]
+	},
+	{
+		category: 'security',
+		type: 'text',
+		title: '이 프로그램의 타사 라이브러리를 제외한 모든 주요 소스, 또는 구성요소들은 모두 @qwreey75 의 소유이며, 모든 권리를 보유합니다. 이 프로그램을 공유, 배포(단 두 경우 모두 창작자를 명확히 알 수 있도록 기제하는 하에)하는것 까지는 자유롭게 허락되나 그 이상의 행위 (재가공, 수정) 는 허락되지 않습니다. 이 프로그램은 대한민국 저작물 보호법에 의해 보호됩니다',
+		style: [
+			['line-height','14px'],
+			['opacity', '0.5'],
+			['fontSize','0.7em'],
+			['width','100%'],
+			['text-align','center'],
+			['margin','12px 0px 0px 6px']
+		]
 	}
 ]

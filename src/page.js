@@ -70,14 +70,14 @@ function setLoadingScreenVisible(visible,message) {
 
 // 설정 리스트
 const settings = require("./settings.js")
-
+var asdf
 // 설정 타입
 let setting_types = {
 	'switch-item': (item,userdata) => {
 		/** @type {HTMLDivElement} */
 		let node = document.querySelector("#switch-item").content.firstElementChild.cloneNode(true)
 
-		node.id = item.id
+		node.id = 'DATA-'+item.id
 		node.querySelector(".option").textContent = item.title // 이름 설정
 		node.querySelector(".option-description").textContent = item.description // 세부 정보 설정
 
@@ -124,12 +124,23 @@ let setting_types = {
 		}
 		node.querySelector(".link-text").textContent = item.title
 		return node
+	},
+	'text': (item) => {
+		let node = document.querySelector("#text").content.firstElementChild.cloneNode(true)
+		let style = item.style
+		if (style) {
+			style.forEach(value => {
+				node.style[value[0]] = value[1]
+			})
+		}
+		node.textContent = item.title
+		return node
 	}
 }
 
 // 각 설정 타입 마다 밸류 값을 확인합니다
-function checkValue() {
-
+function checkValue(id) {
+	
 }
 
 // 카테고리들

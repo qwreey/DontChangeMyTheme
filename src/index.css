@@ -48,7 +48,7 @@ body {
 	flex-direction: row;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	/* justify-content: center; */
 	padding: 0px;
 }
 .link-container .link-text {
@@ -58,7 +58,7 @@ body {
 }
 .link-container span {
 	font-size: 1.65rem;
-	margin-right: 4px;
+	margin: 0px 4px 0px 6px;
 }
 .link-container .mdl-button__ripple-container {
 	margin: 0px;
