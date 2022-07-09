@@ -25,7 +25,7 @@ function createWindow() {
 		},
 	})
 	win.loadFile("src/index.html")
-	if (env !== 'development') {
+	if (env !== 'dev') {
 		win.removeMenu()
 	} else {
 		win.setAlwaysOnTop(true)
@@ -53,7 +53,7 @@ ipcMain.handle('requestExecution',async (event,arg) => {
 
 // live reload
 const env = process.env.NODE_ENV || 'none';
-if (env === 'development') {
+if (env === 'dev') {
     require('electron-reload')(__dirname, {
         electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
         hardResetMethod: 'exit'

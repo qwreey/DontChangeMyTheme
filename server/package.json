@@ -1,0 +1,21 @@
+{
+    "name": "dont_change_my_theme_regtracker",
+    "version": "1.0.0",
+    "description": "tracking windows's registry and prevent changing",
+    "main": "index.js",
+    "bin": "index.js",
+    "author": "qwreey75@gmail.com",
+    "license": "ISC",
+    "pkg": {
+        "scripts": "*.js",
+        "targets": [
+            "node12-win-x64"
+        ]
+    },
+    "scripts": {
+        "build": "pkg . --out-path bin -compress Brotli"
+    },
+    "devDependencies": {
+        "pkg": "^5.7.0"
+    }
+}

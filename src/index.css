@@ -13,27 +13,126 @@ body {
 .mdl-layout__header-row .mdl-layout-icon {
     line-height: normal;
 }
+
+/* 로딩 화면 */
+#loading-screen {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.46);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(6px);
+}
+#loading-screen .window {
+    height: 80px;
+    width: fit-content;
+    padding: 0px 28px 0px 28px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 12px;
+    box-shadow: 0px 4px 22px rgba(0,0,0,0.32);
+} 
+#loading-screen p {
+    margin: 0px 0px 0px 18px;
+    font-size: 1.05em;
+}
+
 /* 콘텐츠 크기 / 페딩 */
 #main-content {
     margin: 8px;
     height: calc(100% - 8px*2);
-    width: 100%;
     display: flex;
     align-items: stretch;
-    align-items: stretch;
+    justify-items: stretch;
 }
 
 /* 내부 패널 */
-.div-vertical {
-    background-color: rgba(170,170,170,0.6);
+.div-vertical { /* 새로 분리선 */
+    background-color: rgba(170, 170, 170, 0.6);
     width: 1px;
     margin: 0px 12px
 }
-.panel {
+.panel { /* 패널 */
     margin: 6px 6px;
     width: 100%;
 }
-.panel-title {
+.panel-title { /* 패널 타이틀 */
     font-weight: bold;
     font-size: 1.2em;
+}
+.space-eater { /* 좌우로 공간차지하기 */
+    flex-grow: 1;
+}
+.horizontal { /* 가로배치 */
+    display: flex;
+    align-items: stretch;
+}
+.padding-right-left { /* 좌우 패딩 */
+    padding: 0px 12px;
+}
+.option { /* 옵션 글자 */
+    font-size: 1.1em;
+    margin: 0px;
+}
+.option-description { /* 옵션 세부설명 */
+    margin: 2px 0px 0px 0px;
+    line-height: normal;
+    font-size: 0.87em;
+}
+.hidden {
+    display: none;
+}
+.option-container {
+    margin-bottom: 16px;
+}
+
+/* 스낵바 */
+.mdl-snackbar .mdl-button {
+    margin-top: 7px;
+    margin-right: 7px;
+    width: 90px;
+    color: rgb(169 120 255);
+}
+.mdl-snackbar .mdl-snackbar__action {
+    display: none !important;
+}
+.mdl-js-snackbar {
+    border-radius: 8px 8px 0px 0px;
+    box-shadow: 0px 0px 12px rgba(0,0,0,0.4);
+}
+
+/* 스크롤바 */
+*::-webkit-scrollbar {
+    width: 8px;
+}
+*:hover::-webkit-scrollbar-track {
+    background-color: rgba(170,170,170,0.2);
+}
+*::-webkit-scrollbar-track {
+    background-color: rgba(170, 170, 170, 0);
+}
+*:hover::-webkit-scrollbar-thumb {
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.46);
+    box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.2);
+}
+*::-webkit-scrollbar-thumb {
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.26);
+    box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 스넥바 플레이스홀더(자리차지기) */
+.snakbar-placeholder {
+    height: 1px;
+}
+.snakbar-placeholder.snakbar-placeholder-active {
+    height: 48px;
 }
