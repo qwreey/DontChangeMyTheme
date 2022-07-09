@@ -1,85 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./material/material.min.css">
-    <link rel="stylesheet" href="./material/icons.css">
-    <script defer src="./material/material.min.js"></script>
-    <link rel="stylesheet" href="./index.css">
-    <title>윈도우 테마 변경 방지</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="./material/material.min.css">
+	<link rel="stylesheet" href="./material/icons.css">
+	<script defer src="./material/material.min.js"></script>
+	<link rel="stylesheet" href="./index.css">
+	<title>윈도우 테마 변경 방지</title>
 
-    <template id="switch-item">
-        <div id="no-wallpaper-cursor" class="option-container">
-            <div class="horizontal">
-                <p class="option"></p>
-                <div class="space-eater"></div>
-                <div class="padding-right-left">
-                    <label class="mdl-switch mdl-js-switch">
-                        <input type="checkbox" class="mdl-switch__input" checked>
-                        <span class="mdl-switch__label"></span>
-                    </label>
-                </div>
-            </div>
-            <p class="option-description"></p>
-        </div>
-    </template>
-    <template id="snakbar-placeholder">
-        <div class="snakbar-placeholder"></div>
-    </template>
-    <template id="settings-title">
-        <p class="panel-title"><br></p>
-    </template>
+	<template id="switch-item">
+		<div class="option-container" isSwitchItem>
+			<div class="horizontal">
+				<p class="option"></p>
+				<div class="space-eater"></div>
+				<div class="padding-right-left">
+					<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect">
+						<input type="checkbox" class="mdl-switch__input" checked>
+						<span class="mdl-switch__label"></span>
+					</label>
+				</div>
+			</div>
+			<p class="option-description"></p>
+		</div>
+	</template>
+	<template id="snakbar-placeholder">
+		<div class="snakbar-placeholder"></div>
+	</template>
+	<template id="settings-title">
+		<p class="panel-title"><br></p>
+	</template>
+	<template id="icon">
+		<span class="material-symbols-outlined"></span>
+	</template>
+	<template id="link">
+		<div class="link-container">
+			<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+				<p class="link-text"></p>
+			</button>
+		</div>
+	</template>
 </head>
 <body>
-    <div id="loading-screen" class="hidden">
-        <div class="window">
-            <div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
-            <p>저장중입니다 . . .</p>
-        </div>
-        <!-- <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div> -->
-    </div>
-    <div class="mdl-layout mdl-js-layout mdl-layout--no-drawer-button mdl-layout--fixed-header">
-        <header class="mdl-layout__header">
-            <div class="mdl-layout__header-row">
-                <div class="mdl-layout-icon">
-                    <span class="material-symbols-outlined">
-                        build
-                    </span>
-                </div>
-                <span class="mdl-layout-title">&nbsp;&nbsp;테마 변경 방지</span>
-                <div class="mdl-layout-spacer"></div>
-                <a class="mdl-navigation__link" id="github-link">
-                    <span class="material-symbols-outlined">
-                        code
-                    </span>
-                    소스코드&amp;웹사이트
-                </a>
-            </div>
-        </header>
-        <main class="mdl-layout__content">
-            <!-- My code start at here . . . -->
-            <div id="main-content">
-                <div id="security-settings" class="panel">
-                </div>
-                <div class="div-vertical"></div>
-                <div id="theme-settings" class="panel">
-                </div>
-            </div>
-        </main>
-    </div>
-    <div id="saved" class="mdl-js-snackbar mdl-snackbar">
-        <div class="mdl-snackbar__text">변경사항이 있습니다</div>
-        <button class="mdl-snackbar__action" type="button">저장하기</button>
-    </div>
-    <div id="save-need" class="mdl-js-snackbar mdl-snackbar">
-        <div class="mdl-snackbar__text">변경사항이 있습니다</div>
-        <button class="mdl-snackbar__action" type="button"></button>
-        <button class="mdl-button mdl-js-button mdl-js-ripple-effect">
-            저장하기
-        </button>
-    </div>
-
-    <script src="./page.js"></script>
+	<div id="loading-screen" class="blurOverlay center hidden">
+		<div class="window center">
+			<div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
+			<p>로드중입니다 . . .</p>
+		</div>
+		<!-- <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div> -->
+	</div>
+	<div id="err-screen" class="blurOverlay center hidden">
+		<div class="window center">
+			<p class="err-screen-title">오류가 발생했습니다</p>
+			<p class="err-screen-result">Error occurred in handler for 'request': TypeError: err.match is not a function</p>
+			<div class="button-holder">
+				<button id="err-report-button" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+					보고하기
+				</button>
+				<button id="reload-button" class="mdl-button mdl-js-button mdl-js-ripple-effect">
+					다시로드
+				</button>
+			</div>
+		</div>
+		<!-- <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div> -->
+	</div>
+	<div class="mdl-layout mdl-js-layout mdl-layout--no-drawer-button mdl-layout--fixed-header">
+		<header class="mdl-layout__header">
+			<div class="mdl-layout__header-row">
+				<div class="mdl-layout-icon">
+					<span class="material-symbols-outlined">
+						build
+					</span>
+				</div>
+				<span class="mdl-layout-title">&nbsp;&nbsp;테마 변경 방지</span>
+				<div class="mdl-layout-spacer"></div>
+				<a class="mdl-navigation__link" id="github-link">
+					버전 1.0.0
+				</a>
+			</div>
+		</header>
+		<main class="mdl-layout__content">
+			<!-- My code start at here . . . -->
+			<div id="main-content">
+				<div id="security-settings" class="panel">
+				</div>
+				<div class="div-vertical"></div>
+				<div id="theme-settings" class="panel">
+				</div>
+			</div>
+		</main>
+	</div>
+	<div id="saved" class="mdl-js-snackbar mdl-snackbar">
+		<div class="mdl-snackbar__text">변경사항이 있습니다</div>
+		<button class="mdl-snackbar__action" type="button">저장하기</button>
+	</div>
+	<div id="save-need" class="mdl-js-snackbar mdl-snackbar">
+		<div class="mdl-snackbar__text">변경사항이 있습니다</div>
+		<button class="mdl-snackbar__action" type="button"></button>
+		<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+			저장하기
+		</button>
+	</div>
+	<script src="./page.js"></script>
 </body>
 </html>

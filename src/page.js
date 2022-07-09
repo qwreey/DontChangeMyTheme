@@ -1,146 +1,166 @@
 
+const { BrowserView } = require('electron');
 const electron = require('electron');
 const Main = require('electron/main');
+const ClassWatcher = require("./ClassWatcher")
 function openInBrowser (url) {
-    electron.shell.openExternal(url)
+	setLoadingScreenVisible(true,"여는중 . . .") // 유저가 여러번 클릭하는걸 막기 위해 로딩 화면을 보여줌
+	electron.shell.openExternal(url)
+	setTimeout(setLoadingScreenVisible,300,false)
+}
+function reload() {
+	location.reload()
+}
+function isString(val) {
+	return typeof val === 'string' || val instanceof String
 }
 
 // 깃허브 링크 연결
 document.querySelector("#github-link").addEventListener('click', ()=>{
-    openInBrowser('https://github.com/qwreey75/DontChangeMyTheme')
+	openInBrowser('https://github.com/qwreey75/DontChangeMyTheme')
+})
+// 오류창 리포트 버튼
+document.querySelector("#err-report-button").addEventListener('click', ()=>{
+	openInBrowser('https://github.com/qwreey75/qwreey75.github.io/issues/new')
+})
+// 오류창 다시로드 버튼
+document.querySelectorAll("#reload-button").forEach((item) => {
+	item.addEventListener('click', reload)
 })
 
 // 스넥바 자리차지 (스크롤 위로올리기)
 function setSnakbarPlaceholderState(active) {
-    let placeholders = document.querySelectorAll(".snakbar-placeholder")
-    placeholders.forEach((item) => {
-        console.log(item.style)
-        item.classList[active ? "add" : "remove"]("snakbar-placeholder-active")
-    })
+	let placeholders = document.querySelectorAll(".snakbar-placeholder")
+	placeholders.forEach((item) => {
+		console.log(item.style)
+		item.classList[active ? "add" : "remove"]("snakbar-placeholder-active")
+	})
 }
 
 // 저장 버튼 열기 (스넥바)
 let saveNeedSnakbar_Button = document.querySelector("#save-need .mdl-button")
 let saveNeedSnakbar = document.querySelector('#save-need')
 function showSaveNeedSnakbar() {
-    saveNeedSnakbar.classList.add("mdl-snackbar--active")
-    setSnakbarPlaceholderState(true)
+	saveNeedSnakbar.classList.add("mdl-snackbar--active")
+	setSnakbarPlaceholderState(true)
 }
-saveNeedSnakbar_Button.addEventListener('click',()=>{
-    console.log("HELLO")
-    saveNeedSnakbar.classList.remove("mdl-snackbar--active")
-    setSnakbarPlaceholderState(false)
+saveNeedSnakbar_Button.addEventListener('click',async ()=>{
+	saveNeedSnakbar.classList.remove("mdl-snackbar--active")
+	setSnakbarPlaceholderState(false)
+	setLoadingScreenVisible(true,"저장중입니다 . . .")
+	setTimeout(setLoadingScreenVisible,1000,false)
 })
 
-// 아이템들
-let ids = 1
-let settings = [
-    // 테마 칸
-    {
-        category: 'theme',
-        type: 'title',
-        title: '기본설정'
-    },
-    {
-        category: 'theme',
-        type: 'switch-item',
-        title: '배경화면 변경 방지',
-        default: false,
-        description: '배경화면 변경을 방지시킵니다. 이 옵션을 적용하면 배경 변경이 불가능 하므로 미리 원하는 것을 적용해주시길 바랍니다.',
-        id: 'wallpaper_nochange'
-    },
-    {
-        category: 'theme',
-        type: 'switch-item',
-        title: '커서 변경 방지',
-        default: false,
-        description: '커서 모양 변경을 방지시킵니다. 이 옵션을 적용하면 커서 모양 변경이 불가능 하므로 미리 원하는 것을 적용해주시길 바랍니다.',
-        id: 'wallpaper_nochange'
-    },
-    {
-        category: 'theme',
-        type: 'switch-item',
-        title: '잠금화면 변경 방지',
-        default: false,
-        description: '잠금화면 배경 변경을 방지시킵니다. 이 옵션을 적용하면 잠금화면 배경 변경이 불가능 하므로 미리 원하는 것을 적용해주시길 바랍니다.',
-        id: 'wallpaper_nochange'
-    },
-    {
-        category: 'theme',
-        type: 'switch-item',
-        title: '테마 변경 방지',
-        default: false,
-        description: '효과음, 창 스타일 등의 변경을 방지시킵니다. 이 옵션을 적용하면 테마 변경이 불가능 하므로 미리 원하는 것을 적용해주시길 바랍니다.',
-        id: 'wallpaper_nochange'
-    },
-    {
-        category: 'theme',
-        type: 'snakbar-placeholder'
-    },
+// 오류창 띄우기
+let errorScreen = document.querySelector("#err-screen")
+let errorScreenText = errorScreen.querySelector(".err-screen-result")
+function showError(message) {
+	errorScreen.classList.remove("hidden")
+	errorScreenText.textContent = message
+}
 
-    // 보안설정 칸
-    {
-        category: 'security',
-        type: 'title',
-        title: '보안설정',
-    },
-    {
-        category: 'security',
-        type: 'title',
-        title: '개발자 링크',
-    },
-]
+// 로딩창 띄우기 / 지우기
+let loadingScreen = document.querySelector("#loading-screen")
+let loadingScreenText = loadingScreen.querySelector("p")
+let loadingScreenTextDefaultContent = loadingScreenText.textContent
+function setLoadingScreenVisible(visible,message) {
+	loadingScreen.classList[visible ? "remove" : "add"]("hidden")
+	loadingScreenText.textContent = message || loadingScreenTextDefaultContent
+}
+
+// 설정 리스트
+const settings = require("./settings.js")
 
 // 설정 타입
 let setting_types = {
-    'switch-item': (item) => {
-        /** @type {HTMLDivElement} */
-        let node = document.querySelector("#switch-item").content.firstElementChild.cloneNode(true)
+	'switch-item': (item,userdata) => {
+		/** @type {HTMLDivElement} */
+		let node = document.querySelector("#switch-item").content.firstElementChild.cloneNode(true)
 
-        node.querySelector(".option").textContent = item.title // 이름 설정
-        node.querySelector(".option-description").textContent = item.description // 세부 정보 설정
+		node.id = item.id
+		node.querySelector(".option").textContent = item.title // 이름 설정
+		node.querySelector(".option-description").textContent = item.description // 세부 정보 설정
 
-        // 스위치 설정
-        let toggle = node.querySelector(".mdl-switch__input")
-        node.querySelector(".mdl-switch").setAttribute("for","switch_"+ ++ids)
-        toggle.setAttribute("id","switch_"+ids)
-        if (item.default === false) {
-            toggle.checked = false
-        }
+		// 스위치 설정
+		let intput = node.querySelector(".mdl-switch__input")
+		let toggle = node.querySelector(".mdl-switch")
+		toggle.setAttribute("for","switch_"+ ++ids)
+		intput.setAttribute("id","switch_"+ids)
+		let checked = item.default || userdata[item.id]
+		if (checked) {
+			toggle.classList.add("is-checked")
+		} else {
+			intput.checked = false
+		}
 
-        return node
-    },
-    'snakbar-placeholder': () => {
-        let node = document.querySelector("#snakbar-placeholder").content.firstElementChild.cloneNode(true)
-        return node
-    },
-    'title': (item) => {
-        let node = document.querySelector("#settings-title").content.firstElementChild.cloneNode(true)
-        node.textContent = item.title
-        return node
-    },
-    'links': (item) => {
-        
-    }
+		new ClassWatcher(toggle, 'is-checked',showSaveNeedSnakbar,showSaveNeedSnakbar)
+
+		return node
+	},
+	'snakbar-placeholder': () => {
+		let node = document.querySelector("#snakbar-placeholder").content.firstElementChild.cloneNode(true)
+		return node
+	},
+	'title': (item) => {
+		let node = document.querySelector("#settings-title").content.firstElementChild.cloneNode(true)
+		node.textContent = item.title
+		return node
+	},
+	'link': (item) => {
+		let node = document.querySelector("#link").content.firstElementChild.cloneNode(true)
+		let icon = item.icon
+		let url = item.url
+
+		if (icon) {
+			let iconNode = document.querySelector("#icon").content.firstElementChild.cloneNode(true)
+			iconNode.textContent = icon
+			node.querySelector(".mdl-button").prepend(iconNode)
+		}
+
+		if (url) {
+			node.addEventListener('click',()=>{
+				openInBrowser(url)
+			})
+		}
+		node.querySelector(".link-text").textContent = item.title
+		return node
+	}
+}
+
+// 각 설정 타입 마다 밸류 값을 확인합니다
+function checkValue() {
+
 }
 
 // 카테고리들
 let setting_category = {
-    theme: document.querySelector("#theme-settings"),
-    security: document.querySelector("#security-settings")
+	theme: document.querySelector("#theme-settings"),
+	security: document.querySelector("#security-settings")
 }
 
 // 설정 추가하기
-settings.forEach(item => {
-    setting_category[item.category].appendChild(
-        setting_types[item.type](item)
-    )
-});
+let ids = 1
+function loadSettings(settingsData) {
+	settings.forEach(item => {
+		setting_category[item.category].appendChild(
+			setting_types[item.type](item,settingsData)
+		)
+	});
+}
 
 // 메인
 async function main() {
-    console.log(await electron.ipcRenderer.invoke("requestExecution","test"));
+	let loadedData
+	try {
+		loadedData = await electron.ipcRenderer.invoke("request","getSettings")
+	} catch(err) {
+		return showError(err.toString())
+	}
+	if (isString(loadedData)) {
+		return showError(loadedData)
+	}
+	loadSettings(loadedData)
 }
 main()
 
-showSaveNeedSnakbar()
+// showSaveNeedSnakbar()

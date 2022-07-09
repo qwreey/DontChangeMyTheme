@@ -6,10 +6,11 @@ let win
 const config = require("./config.json")
 const winSize = config.winSize
 const minWinSize = config.minWinSize
+const initPath = path.join(app.getPath("appData"), ".nochtheme")
 
 function createWindow() {
 	win = new BrowserWindow({
-		minimizable: false,
+		// minimizable: false,
 		icon: 'src/icons/headerIcon.png',
 		width: parseInt(winSize[0]),
 		height: parseInt(winSize[1]),
@@ -47,8 +48,26 @@ app.on('activate', () => {
 })
 
 // send data
-ipcMain.handle('requestExecution',async (event,arg) => {
-	return "Hello world"
+let funcs = {
+	reset: () => {
+		
+	},
+	setSettings: (settings) => {
+
+	},
+	getSettings: () => {
+		try {
+			return fs.readFileSync(initPath)
+		} catch (err) {
+			let errstr = err.toString()
+			if (errstr.match("ENOENT")) return {}
+			return `ERROR : ${errstr}`
+		}
+	}
+}
+
+ipcMain.handle('request',async (event,funcName,...args) => {
+	return funcs[funcName](...args);
 })
 
 // live reload
