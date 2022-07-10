@@ -72,10 +72,18 @@ async function setRegistry(PATH,KEY,TYPE,VALUE) {
 	return true
 }
 
-let settings_actions = {
-}
+let settings_actions = [
+	{
+		id: "wallpaper_nochange",
+		func: value => {
+			return setRegistry("","","",value ? "1" : "0")
+		},
+	},
+]
 
+/** @param {Object} */
 function set(settings) {
+	
 }
 
 // remote functions

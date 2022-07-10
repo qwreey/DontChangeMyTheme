@@ -2,7 +2,7 @@
 const { BrowserView } = require('electron');
 const electron = require('electron');
 const Main = require('electron/main');
-const ClassWatcher = require("./ClassWatcher")
+const ClassWatcher = require("./classWatcher")
 function openInBrowser (url) {
 	setLoadingScreenVisible(true,"여는중 . . .") // 유저가 여러번 클릭하는걸 막기 위해 로딩 화면을 보여줌
 	electron.shell.openExternal(url)
@@ -45,7 +45,6 @@ saveNeedSnakbar_Button.addEventListener('click',async ()=>{
 	setLoadingScreenVisible(true,"저장중입니다 . . .")
 	await requestApply()
 	setLoadingScreenVisible(false)
-	// setTimeout(setLoadingScreenVisible,1000,false)
 })
 
 // 저장 완료
