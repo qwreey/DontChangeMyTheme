@@ -7,7 +7,10 @@ let win
 const config = require("./config.json")
 const winSize = config.winSize
 const minWinSize = config.minWinSize
-const initPath = path.join(app.getPath("appData"), ".nochtheme")
+const dataPath = path.join(app.getPath("appData"), ".nochth")
+const settingsPath = path.join(dataPath, ".settings")
+const demonPath = path.join(dataPath, "demon.exe")
+try {fs.mkdirSync(dataPath)} catch {}
 
 function createWindow() {
 	win = new BrowserWindow({
@@ -20,7 +23,7 @@ function createWindow() {
         minWidth: parseInt(minWinSize[0]),
         minHeight: parseInt(minWinSize[1]),
 		webPreferences: {
-			preload: path.join(__dirname, "preload.js"),
+			// preload: path.join(__dirname, "preload.js"),
 			nodeIntegration: true,
 			enableRemoteModule: true,
 			contextIsolation: false,
@@ -50,7 +53,7 @@ app.on('activate', () => {
 
 function logging(str) {
 	// win.webContents.send('logcat',str)
-	console.log("[LOG] : " + str)
+	console.log("[LOG] : " + str.trim())
 }
 
 async function setRegistry(PATH,KEY,TYPE,VALUE) {
@@ -75,30 +78,87 @@ async function setRegistry(PATH,KEY,TYPE,VALUE) {
 let settings_actions = [
 	{
 		id: "wallpaper_nochange",
-		func: value => {
-			return setRegistry("","","",value ? "1" : "0")
+		func: async value => {
+			return await setRegistry(
+				"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\ActiveDesktop",
+				"NoChangingWallPaper",
+				"REG_DWORD",
+				value ? "1" : "0"
+			)
+		},
+	},
+	{
+		id: "cursor_nochange",
+		func: async value => {
+			return await setRegistry(
+				"HKCU\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+				"NoChangingMousePointers",
+				"REG_DWORD",
+				value ? "1" : "0"
+			)
+		},
+	},
+	{
+		id: "lockscreen_nochange",
+		func: async value => {
+			return await setRegistry(
+				"HKCU\\Software\\Policies\\Microsoft\\Windows\\Personalization",
+				"NoChangingLockScreen",
+				"REG_DWORD",
+				value ? "1" : "0"
+			)
+		},
+	},
+	{
+		id: "theme_nochange",
+		func: async value => {
+			return await setRegistry(
+				"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+				"NoThemesTab",
+				"REG_DWORD",
+				value ? "1" : "0"
+			)
 		},
 	},
 ]
 
 /** @param {Object} */
-function set(settings) {
-	
+async function set(settings) {
+	for (let index in settings_actions) {
+		let item = settings_actions[index]
+		let result = await item.func(settings[item.id]) // settings item can be null or undefined? idk
+		if (result !== true) return result
+	}
 }
 
 // remote functions
 let funcs = {
 	setSettings: async (settings) => {
-		fs.writeFileSync(initPath,"{}")
-		set({})
+		fs.writeFileSync(settingsPath,JSON.stringify(settings))
+		let result = (await set(settings)) || 'ok'
+		if (result != 'ok') return result
 
-		fs.writeFileSync(initPath,JSON.stringify(settings))
-		set(settings)
-		return 'ok'
+		if (!fs.existsSync(demonPath)) {
+			fs.copyFileSync(fs.existsSync('./demon.exe') ? './demon.exe' : 'resources/app/demon.exe',demonPath)
+			spawn(demonPath,[],{
+				detached: true,
+				stdio: [ 'ignore', 'ignore', 'ignore' ],
+				cwd: dataPath,
+			})
+			let batFile = path.join(dataPath,'rundemon.bat')
+			exec(`schtasks /create /tn "nochth" /tr "${batFile}" /sc onlogon /rl highest`,(err)=>{
+				if (err) console.log(err)
+			})
+			fs.writeFileSync(batFile,`
+cd ${dataPath}
+./demon.exe
+			`)
+		}
+		return result
 	},
 	getSettings: async () => {
 		try {
-			return fs.readFileSync(initPath)
+			return JSON.parse(fs.readFileSync(settingsPath))
 		} catch (err) {
 			let errstr = err.toString()
 			if (errstr.match("ENOENT")) return {}

@@ -21,13 +21,15 @@
     "electronmon": "^1.1.2"
   },
   "build": {
+    "asar": false,
     "productName": "Dont-Change-My-Theme",
     "appId": "com.github.qwreey75.dontchangemytheme",
     "files": [
       "src/",
       "index.js",
       "config.json",
-      "package.json"
+      "package.json",
+      "demon.exe"
     ],
     "win": {
       "icon": "assets/icons/win/icon.ico",
