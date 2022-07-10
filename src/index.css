@@ -133,6 +133,7 @@ body {
 .panel-title { /* 패널 타이틀 */
 	font-weight: bold;
 	font-size: 1.2em;
+	margin: 0px 0px 12px 0px;
 }
 .space-eater { /* 좌우로 공간차지하기 */
 	flex-grow: 1;

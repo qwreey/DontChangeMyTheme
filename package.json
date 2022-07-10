@@ -24,7 +24,10 @@
     "productName": "Dont-Change-My-Theme",
     "appId": "com.github.qwreey75.dontchangemytheme",
     "files": [
-      "src/","index.js","config.json","package.json"
+      "src/",
+      "index.js",
+      "config.json",
+      "package.json"
     ],
     "win": {
       "icon": "assets/icons/win/icon.ico",

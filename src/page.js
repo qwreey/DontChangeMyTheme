@@ -6,7 +6,7 @@ const ClassWatcher = require("./ClassWatcher")
 function openInBrowser (url) {
 	setLoadingScreenVisible(true,"여는중 . . .") // 유저가 여러번 클릭하는걸 막기 위해 로딩 화면을 보여줌
 	electron.shell.openExternal(url)
-	setTimeout(setLoadingScreenVisible,300,false)
+	setTimeout(setLoadingScreenVisible,400,false)
 }
 function reload() {
 	location.reload()
@@ -14,17 +14,13 @@ function reload() {
 function isString(val) {
 	return typeof val === 'string' || val instanceof String
 }
+require("./material/material.min") // load mdl
 
-// 깃허브 링크 연결
-document.querySelector("#github-link").addEventListener('click', ()=>{
-	openInBrowser('https://github.com/qwreey75/DontChangeMyTheme')
-})
-// 오류창 리포트 버튼
-document.querySelector("#err-report-button").addEventListener('click', ()=>{
+// 버튼 기능 활성화
+document.querySelector("#err-report-button").addEventListener('click', ()=>{ // 오류창 리포트 버튼
 	openInBrowser('https://github.com/qwreey75/qwreey75.github.io/issues/new')
 })
-// 오류창 다시로드 버튼
-document.querySelectorAll("#reload-button").forEach((item) => {
+document.querySelectorAll("#reload-button").forEach((item) => { // 리로드 버튼
 	item.addEventListener('click', reload)
 })
 
@@ -32,7 +28,6 @@ document.querySelectorAll("#reload-button").forEach((item) => {
 function setSnakbarPlaceholderState(active) {
 	let placeholders = document.querySelectorAll(".snakbar-placeholder")
 	placeholders.forEach((item) => {
-		console.log(item.style)
 		item.classList[active ? "add" : "remove"]("snakbar-placeholder-active")
 	})
 }
@@ -48,8 +43,19 @@ saveNeedSnakbar_Button.addEventListener('click',async ()=>{
 	saveNeedSnakbar.classList.remove("mdl-snackbar--active")
 	setSnakbarPlaceholderState(false)
 	setLoadingScreenVisible(true,"저장중입니다 . . .")
-	setTimeout(setLoadingScreenVisible,1000,false)
+	await requestApply()
+	setLoadingScreenVisible(false)
+	// setTimeout(setLoadingScreenVisible,1000,false)
 })
+
+// 저장 완료
+let savedSnakbar = document.querySelector("#saved")
+function showSavedSnakbar() {
+	savedSnakbar.MaterialSnackbar.showSnackbar({
+		message: '저장되었습니다',
+		timeout: 3500,
+	})
+}
 
 // 오류창 띄우기
 let errorScreen = document.querySelector("#err-screen")
@@ -70,7 +76,7 @@ function setLoadingScreenVisible(visible,message) {
 
 // 설정 리스트
 const settings = require("./settings.js")
-var asdf
+
 // 설정 타입
 let setting_types = {
 	'switch-item': (item,userdata) => {
@@ -84,16 +90,27 @@ let setting_types = {
 		// 스위치 설정
 		let intput = node.querySelector(".mdl-switch__input")
 		let toggle = node.querySelector(".mdl-switch")
-		toggle.setAttribute("for","switch_"+ ++ids)
+		toggle.setAttribute("for","switch_"+ ++ids) // 아이디 부여
 		intput.setAttribute("id","switch_"+ids)
-		let checked = item.default || userdata[item.id]
-		if (checked) {
+
+		let checked // 채크 상태 불러오기
+		let userValue = userdata[item.id]
+		if (userValue === undefined) {
+			checked = item.default
+		} else {
+			checked = userValue
+		}
+
+		if (checked) { // 보이도록 적용
 			toggle.classList.add("is-checked")
 		} else {
 			intput.checked = false
 		}
 
-		new ClassWatcher(toggle, 'is-checked',showSaveNeedSnakbar,showSaveNeedSnakbar)
+		componentHandler.upgradeElement(toggle)
+		componentHandler.upgradeElement(toggle.querySelector(".mdl-switch__ripple-container"))
+
+		new ClassWatcher(toggle, 'is-checked',showSaveNeedSnakbar,showSaveNeedSnakbar) // 값 변경 지켜보도록 만들기
 
 		return node
 	},
@@ -114,7 +131,9 @@ let setting_types = {
 		if (icon) {
 			let iconNode = document.querySelector("#icon").content.firstElementChild.cloneNode(true)
 			iconNode.textContent = icon
-			node.querySelector(".mdl-button").prepend(iconNode)
+			let button = node.querySelector(".mdl-button")
+			componentHandler.upgradeElement(button)
+			button.prepend(iconNode)
 		}
 
 		if (url) {
@@ -139,8 +158,16 @@ let setting_types = {
 }
 
 // 각 설정 타입 마다 밸류 값을 확인합니다
-function checkValue(id) {
-	
+let checkValue_types = {
+	/** @param {HTMLDivElement} item */
+	'switch-item': (item) => {
+		return item.querySelector(".mdl-switch").classList.contains('is-checked')
+	}
+}
+function checkValue(type,id) {
+	let item = document.getElementById('DATA-'+id)
+	if (!item) return
+	return checkValue_types[type](item)
 }
 
 // 카테고리들
@@ -159,6 +186,24 @@ function loadSettings(settingsData) {
 	});
 }
 
+// 저장 요청
+async function requestApply() {
+	let request = {}
+	let result
+	settings.forEach(item => {
+		if (item.id) request[item.id] = checkValue(item.type,item.id)
+	})
+	try {
+		result = await electron.ipcRenderer.invoke("request","setSettings",request)
+	} catch(err) {
+		return showError(err.toString())
+	}
+	if (result != 'ok') {
+		return showError(result.toString())
+	}
+	showSavedSnakbar()
+}
+
 // 메인
 async function main() {
 	let loadedData
@@ -170,8 +215,7 @@ async function main() {
 	if (isString(loadedData)) {
 		return showError(loadedData)
 	}
+	console.log("[RENDER] 불러오기 성공")
 	loadSettings(loadedData)
 }
 main()
-
-// showSaveNeedSnakbar()

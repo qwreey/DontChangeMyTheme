@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require("electron")
 const path = require("path")
 const fs = require("fs")
+const { exec,spawn } = require('child_process')
 
 let win
 const config = require("./config.json")
@@ -47,15 +48,47 @@ app.on('activate', () => {
     }
 })
 
-// send data
-let funcs = {
-	reset: () => {
-		
-	},
-	setSettings: (settings) => {
+function logging(str) {
+	// win.webContents.send('logcat',str)
+	console.log("[LOG] : " + str)
+}
 
+async function setRegistry(PATH,KEY,TYPE,VALUE) {
+	logging(`작업 시작 : [레지스트리] ${PATH} 에 ${KEY}=${VALUE} (${TYPE}) 추가`)
+	/** @type {[String,String,String]} */
+	let [stdout,stderr,err] = await new Promise(resolve => {
+		exec(`@chcp 65001 >nul | reg ADD "${PATH}" /v "${KEY}" /t "${TYPE}" /d "${VALUE}" /f`,{encoding: "UTF-8"},
+			(err, stdout, stderr) => {
+				resolve([stdout,stderr,err])
+			}
+		)
+	})
+	if (stderr) stderr = stderr.trim()
+	if (err && err.length!==0) {
+		logging(stderr)
+		return stderr
+	}
+	logging(stdout)
+	return true
+}
+
+let settings_actions = {
+}
+
+function set(settings) {
+}
+
+// remote functions
+let funcs = {
+	setSettings: async (settings) => {
+		fs.writeFileSync(initPath,"{}")
+		set({})
+
+		fs.writeFileSync(initPath,JSON.stringify(settings))
+		set(settings)
+		return 'ok'
 	},
-	getSettings: () => {
+	getSettings: async () => {
 		try {
 			return fs.readFileSync(initPath)
 		} catch (err) {
@@ -66,8 +99,9 @@ let funcs = {
 	}
 }
 
+// remote function connecting
 ipcMain.handle('request',async (event,funcName,...args) => {
-	return funcs[funcName](...args);
+	return await funcs[funcName](...args);
 })
 
 // live reload

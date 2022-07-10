@@ -43,11 +43,34 @@ module.exports = [
 	},
 
 	// 보안설정 칸
-	// {
-	// 	category: 'security',
-	// 	type: 'title',
-	// 	title: '보안설정',
-	// },
+	{
+		category: 'security',
+		type: 'title',
+		title: '보안설정',
+	},
+	{
+		category: 'security',
+		type: 'text',
+		title: '아직 설정이 없어요 :<',
+		style: [
+			['fontSize','0.9em'],
+			['width','100%'],
+			['text-align','center'],
+			['line-height','14px'],
+			['margin','18px 0px 0px 0px']
+		]
+	},
+	{
+		category: 'security',
+		type: 'text',
+		title: '아직 이 설정은 개발 단계에 있어요',
+		style: [
+			['fontSize','0.9em'],
+			['width','100%'],
+			['text-align','center'],
+			['margin','0px 0px 12px 0px']
+		]
+	},
 	{
 		category: 'security',
 		type: 'title',
