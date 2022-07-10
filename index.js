@@ -151,7 +151,7 @@ let funcs = {
 			})
 			fs.writeFileSync(batFile,`
 cd ${dataPath}
-./demon.exe
+demon.exe
 			`)
 		}
 		return result
