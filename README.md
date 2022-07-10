@@ -1,6 +1,6 @@
 # 테마 변경 방지 프로그램
 
-시연 영상 보기<br>
+## 시연 영상 보기
 [![시연 영상 바로가기](https://img.youtube.com/vi/2awSc8ftoL8/0.jpg)](https://www.youtube.com/watch?v=2awSc8ftoL8)
 
 ## 이 프로그램의 목적
