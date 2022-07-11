@@ -47,27 +47,46 @@ module.exports = [
 		category: 'security',
 		type: 'title',
 		title: '보안설정',
-	},
-	{
-		category: 'security',
-		type: 'text',
-		title: '아직 설정이 없어요 :<',
 		style: [
-			['fontSize','0.9em'],
-			['width','100%'],
-			['text-align','center'],
-			['line-height','14px'],
-			['margin','18px 0px 0px 0px']
+			['margin-bottom','0px']
 		]
 	},
 	{
 		category: 'security',
+		id: 'password',
+		type: 'textfield',
+		placeholder: '프로그램 비밀번호',
+	},
+	{
+		category: 'security',
 		type: 'text',
-		title: '아직 이 설정은 개발 단계에 있어요',
+		title: '이 프로그램에 다른이가 접근하지 못하도록 비밀번호를 겁니다. (비워두면 설정하지 않음) 잊으면 프로그램에 접근하지 못합니다!',
 		style: [
-			['fontSize','0.9em'],
+			['fontSize','0.8em'],
 			['width','100%'],
 			['text-align','center'],
+			['line-height','14px'],
+			['margin','0px 0px 12px 0px']
+		]
+	},
+	{
+		category: 'security',
+		type: 'title',
+		title: '복구옵션',
+	},
+	{
+		category: 'security',
+		type: 'program.resetAll'
+	},
+	{
+		category: 'security',
+		type: 'text',
+		title: '이 프로그램으로 생성된 파일들이 컴퓨터에서 지워지고 설정하기 전으로 돌아갑니다. 완전히 프로그램을 지울 때 사용하세요',
+		style: [
+			['fontSize','0.8em'],
+			['width','100%'],
+			['text-align','center'],
+			['line-height','14px'],
 			['margin','0px 0px 12px 0px']
 		]
 	},
@@ -105,20 +124,20 @@ module.exports = [
 			['fontSize','0.9em'],
 			['width','100%'],
 			['text-align','center'],
-			['margin','6px 0px 0px 6px']
+			['margin','4px 0px 0px 4px']
 		]
 	},
-	{
-		category: 'security',
-		type: 'text',
-		title: '이 프로그램의 타사 라이브러리를 제외한 모든 주요 소스, 또는 구성요소들은 모두 @qwreey75 의 소유이며, 모든 권리를 보유합니다. 이 프로그램을 공유, 배포(단 두 경우 모두 창작자를 명확히 알 수 있도록 기제하는 하에)하는것 까지는 자유롭게 허락되나 그 이상의 행위 (재가공, 수정) 는 허락되지 않습니다. 이 프로그램은 대한민국 저작물 보호법에 의해 보호됩니다',
-		style: [
-			['line-height','14px'],
-			['opacity', '0.5'],
-			['fontSize','0.7em'],
-			['width','100%'],
-			['text-align','center'],
-			['margin','12px 0px 0px 6px']
-		]
-	}
+	// {
+	// 	category: 'security',
+	// 	type: 'text',
+	// 	title: '이 프로그램의 타사 라이브러리를 제외한 모든 주요 소스, 또는 구성요소들은 모두 @qwreey75 의 소유이며, 모든 권리를 보유합니다. 이 프로그램을 공유, 배포(단 두 경우 모두 창작자를 명확히 알 수 있도록 기제하는 하에)하는것 까지는 자유롭게 허락되나 그 이상의 행위 (재가공, 수정) 는 허락되지 않습니다.',
+	// 	style: [
+	// 		['line-height','14px'],
+	// 		['opacity', '0.5'],
+	// 		['fontSize','0.7em'],
+	// 		['width','100%'],
+	// 		['text-align','center'],
+	// 		['margin','12px 0px 0px 6px']
+	// 	]
+	// }
 ]

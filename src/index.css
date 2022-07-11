@@ -155,7 +155,7 @@ body {
 	font-size: 0.87em;
 }
 .option-container {
-	margin-bottom: 16px;
+	margin-bottom: 14px;
 }
 
 /* 스낵바 */
@@ -200,4 +200,26 @@ body {
 }
 .snakbar-placeholder.snakbar-placeholder-active {
 	height: 48px;
+}
+
+/* 입력바 */
+.mdl-textfield {
+	width: 100%;
+}
+
+/* 비밀번호 화면 */
+#password-screen .password-screen-title {
+	font-size: 1.1em;
+	font-weight: bold;
+	margin: 22px 22px 8px 22px;
+}
+#password-screen .password-screen-description {
+	margin: 0px 22px 0px 22px;
+}
+#password-screen form {
+	padding: 0px 22px 0px 22px;
+}
+#password-screen .window {
+	padding: 0px 0px 4px 0px;
+	width: 260px;
 }

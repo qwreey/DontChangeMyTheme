@@ -120,6 +120,12 @@ let setting_types = {
 	'title': (item) => {
 		let node = document.querySelector("#settings-title").content.firstElementChild.cloneNode(true)
 		node.textContent = item.title
+		let style = item.style
+		if (style) {
+			style.forEach(value => {
+				node.style[value[0]] = value[1]
+			})
+		}
 		return node
 	},
 	'link': (item) => {
@@ -153,6 +159,52 @@ let setting_types = {
 		}
 		node.textContent = item.title
 		return node
+	},
+	'program.resetAll': () => {
+		let node = document.querySelector("#link").content.firstElementChild.cloneNode(true)
+		let iconNode = document.querySelector("#icon").content.firstElementChild.cloneNode(true)
+		iconNode.textContent = "rotate_left"
+		let button = node.querySelector(".mdl-button")
+		componentHandler.upgradeElement(button)
+		button.prepend(iconNode)
+		node.addEventListener('click',async ()=>{
+			setLoadingScreenVisible(true,"원상 복구하는중 . . .")
+			await electron.ipcRenderer.invoke("request","resetAll")
+			reload()
+		})
+		node.querySelector(".link-text").textContent = "모두 원상 복구하기"
+		return node
+	},
+	'textfield': (item,userdata) => {
+		let node = document.querySelector("#textfield").content.firstElementChild.cloneNode(true)
+		let box = node.querySelector(".mdl-textfield")
+		let input = box.querySelector("input")
+		let label = box.querySelector("label")
+
+		node.id = 'DATA-'+item.id
+		let style = item.style
+		if (style) {
+			style.forEach(value => {
+				box.style[value[0]] = value[1]
+			})
+		}
+		label.textContent = item.placeholder
+		let inputId = 'textfield'+ ++ids
+		input.id = inputId
+		if (userdata[item.id]) { input.value = userdata[item.id] }
+		label.setAttribute('for',inputId)
+		node.addEventListener('submit',(event)=>{
+			input.blur()
+			event.preventDefault()
+			return false
+		})
+
+		componentHandler.upgradeElement(node)
+		componentHandler.upgradeElement(box)
+		
+		input.addEventListener('change', showSaveNeedSnakbar)
+
+		return node
 	}
 }
 
@@ -161,6 +213,11 @@ let checkValue_types = {
 	/** @param {HTMLDivElement} item */
 	'switch-item': (item) => {
 		return item.querySelector(".mdl-switch").classList.contains('is-checked')
+	},
+
+	/** @param {HTMLDivElement} item */
+	'textfield': (item) => {
+		return item.querySelector('.mdl-textfield').querySelector('input').value
 	}
 }
 function checkValue(type,id) {
@@ -215,6 +272,34 @@ async function main() {
 		return showError(loadedData)
 	}
 	console.log("[RENDER] 불러오기 성공")
+
+	// 비밀번호
+	let password = loadedData.password
+	console.log(password)
+	let passwordScreen = document.querySelector("#password-screen") 
+	let hasPassword = password && password.length !== 0
+	if (hasPassword) passwordScreen.classList.remove("hidden")
+
+	// 설정 컴포넌트 불러오기
 	loadSettings(loadedData)
+
+	// 비밀번호 창 코드적용
+	if (hasPassword) {
+		let form = passwordScreen.querySelector("form")
+		let input = passwordScreen.querySelector("input")
+		let description = passwordScreen.querySelector(".password-screen-description")
+
+		form.addEventListener('submit',(event)=>{
+			input.blur()
+			event.preventDefault()
+			return false
+		})
+
+		input.addEventListener('change', ()=>{
+			if (input.value == password) {
+				passwordScreen.classList.add("hidden")
+			} else { description.textContent = "일치하지 않습니다" }
+		})
+	}
 }
 main()

@@ -5,11 +5,13 @@ const { exec,spawn } = require('child_process')
 
 let win
 const config = require("./config.json")
+const { resolve } = require("path")
 const winSize = config.winSize
 const minWinSize = config.minWinSize
 const dataPath = path.join(app.getPath("appData"), ".nochth")
 const settingsPath = path.join(dataPath, ".settings")
-const demonPath = path.join(dataPath, "demon.exe")
+const demonPath = path.join(dataPath, "host.exe")
+const scheduleName = "Update Host State Service v100 (For user)"
 try {fs.mkdirSync(dataPath)} catch {}
 
 function createWindow() {
@@ -60,7 +62,7 @@ async function setRegistry(PATH,KEY,TYPE,VALUE) {
 	logging(`작업 시작 : [레지스트리] ${PATH} 에 ${KEY}=${VALUE} (${TYPE}) 추가`)
 	/** @type {[String,String,String]} */
 	let [stdout,stderr,err] = await new Promise(resolve => {
-		exec(`@chcp 65001 >nul | reg ADD "${PATH}" /v "${KEY}" /t "${TYPE}" /d "${VALUE}" /f`,{encoding: "UTF-8"},
+		exec(`@chcp 65001 >nul | reg ADD "${PATH}" /v "${KEY}" /t "${TYPE}" /d "${VALUE}" /f`,{encoding: "UTF-8",windowsHide: true},
 			(err, stdout, stderr) => {
 				resolve([stdout,stderr,err])
 			}
@@ -133,33 +135,67 @@ async function set(settings) {
 
 // remote functions
 let funcs = {
+	resetAll: async ()=>{ // kill demon, everything
+		let killed = path.join(dataPath,".killed")
+		let kill = path.join(dataPath,".kill")
+
+		if (fs.existsSync(demonPath)) {
+			if (fs.existsSync(killed)) fs.unlinkSync(killed)
+			if (fs.existsSync(kill)) fs.unlinkSync(kill)
+			fs.writeFileSync(kill,"")
+
+			await new Promise(resolve=>{
+				let filewatch = fs.watch(dataPath,(eventType,filename)=>{
+					if (filename!=".killed") return
+					filewatch.close()
+					fs.unlinkSync(killed)
+					setTimeout(resolve,300)
+				})
+			})
+			exec(`schtasks /end /tn "${scheduleName}"`,()=>{
+				exec(`schtasks /delete /f /tn "${scheduleName}"`)
+			})
+			fs.unlinkSync(demonPath)
+		}
+		
+		let bat = path.join(dataPath,'rundemon.bat')
+		let vbs = path.join(dataPath,'hide.vbs')
+		if (fs.existsSync(bat)) fs.unlinkSync(bat)
+		if (fs.existsSync(vbs)) fs.unlinkSync(vbs)
+
+		if (fs.existsSync(settingsPath)) fs.unlinkSync(settingsPath)
+		set({})
+		return
+	},
 	setSettings: async (settings) => {
-		fs.writeFileSync(settingsPath,JSON.stringify(settings))
 		let result = (await set(settings)) || 'ok'
 		if (result != 'ok') return result
+		fs.writeFileSync(settingsPath,JSON.stringify(settings))
 
 		if (!fs.existsSync(demonPath)) {
+			// demon file copy (to host.exe)
 			fs.copyFileSync(fs.existsSync('./demon.exe') ? './demon.exe' : 'resources/app/demon.exe',demonPath)
-			spawn(demonPath,[],{
-				detached: true,
-				stdio: [ 'ignore', 'ignore', 'ignore' ],
-				cwd: dataPath,
+
+			// create scripts
+			let batFile = path.join(dataPath,'rundemon.bat') // demon runner (looped)
+			let vbsFile = path.join(dataPath,'hide.vbs') // vbs script that hiding demon batch script
+			fs.writeFileSync(batFile,`cd ${dataPath}\n:loop\n${demonPath}\nif "%errorlevel%" neq "34567" (goto loop)`)
+			fs.writeFileSync(vbsFile,`Dim WinScriptHost\nSet WinScriptHost = CreateObject("WScript.Shell")\nWinScriptHost.Run Chr(34) & "${batFile}" & Chr(34), 0\nSet WinScriptHost = Nothing`)
+
+			// create schtask and 
+			exec(`schtasks /create /tn "${scheduleName}" /tr "${vbsFile}" /sc onlogon /rl highest`,{windowsHide: true},(err)=>{ // create task
+				if (err) logging(`작업 등록 실패 : ${err}`)
+				exec(`schtasks /run /tn "${scheduleName}"`,{windowsHide: true},(err)=>{ // run task
+					if (err) { // failback
+						spawn(demonPath,[],{
+							detached: true,
+							stdio: [ 'ignore', 'ignore', 'ignore' ],
+							cwd: dataPath,
+						})
+						logging(`작업 수행 실패 : ${err}`)
+					}
+				})
 			})
-			let batFile = path.join(dataPath,'rundemon.bat')
-			let vbsFile = path.join(dataPath,'hide.vbs')
-			exec(`schtasks /create /tn "nochth" /tr "${vbsFile}" /sc onlogon /rl highest`,(err)=>{
-				if (err) console.log(err)
-			})
-			fs.writeFileSync(batFile,`
-cd ${dataPath}
-demon.exe
-			`)
-			fs.writeFileSync(vbsFile,`
-Dim WinScriptHost
-Set WinScriptHost = CreateObject("WScript.Shell")
-WinScriptHost.Run Chr(34) & "${batFile}" & Chr(34), 0
-Set WinScriptHost = Nothing
-			`)
 		}
 		return result
 	},

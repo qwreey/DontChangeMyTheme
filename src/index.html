@@ -42,14 +42,33 @@
 			</button>
 		</div>
 	</template>
+	<template id="textfield">
+		<form>
+			<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+				<input class="mdl-textfield__input" type="text" id="sample3">
+				<label class="mdl-textfield__label" for="sample3">Text...</label>
+			</div>
+		</form>
+	</template>
 </head>
 <body>
+	<div id="password-screen" class="blurOverlay center hidden">
+		<div class="window">
+			<p class="password-screen-title">프로그램이 잠겨있습니다</p>
+			<p class="password-screen-description">비밀번호를 입력하세요</p>
+			<form>
+				<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+					<input class="mdl-textfield__input" type="text" id="sample3">
+					<label class="mdl-textfield__label" for="sample3">비밀번호</label>
+				</div>
+			</form>
+		</div>
+	</div>
 	<div id="loading-screen" class="blurOverlay center hidden">
 		<div class="window center">
 			<div class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
 			<p>로드중입니다 . . .</p>
 		</div>
-		<!-- <div class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div> -->
 	</div>
 	<div id="err-screen" class="blurOverlay center hidden">
 		<div class="window center">
