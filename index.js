@@ -18,7 +18,7 @@ try {fs.mkdirSync(dataPath)} catch {}
 function createWindow() {
 	win = new BrowserWindow({
 		// minimizable: false,
-		icon: 'src/icons/headerIcon.png',
+		icon: 'src/icon.png',
 		width: parseInt(winSize[0]),
 		height: parseInt(winSize[1]),
 		frame: true,
@@ -220,9 +220,9 @@ let funcs = {
 
 		if (!fs.existsSync(demonPath)) {
 			// demon file copy
-			fs.copyFileSync(fs.existsSync('./server/node.exe') ? './server/node.exe' : 'resources/app/server/node.exe',path.join(dataPath,"node.exe"))
-			fs.copyFileSync(fs.existsSync('./server/index.js') ? './server/index.js' : 'resources/app/server/index.js',path.join(dataPath,"index.js"))
-			copyFolderSync(fs.existsSync('./server/node_modules') ? './server/node_modules' : 'resources/app/server/node_modules',path.join(dataPath,"node_modules"))
+			fs.copyFileSync(fs.existsSync('./server/node.exe') ? './server/node.exe' : 'resources/app.asar.unpacked/server/node.exe',path.join(dataPath,"node.exe"))
+			fs.copyFileSync(fs.existsSync('./server/index.js') ? './server/index.js' : 'resources/app.asar.unpacked/server/index.js',path.join(dataPath,"index.js"))
+			copyFolderSync(fs.existsSync('./server/node_modules') ? './server/node_modules' : 'resources/app.asar.unpacked/server/node_modules',path.join(dataPath,"node_modules"))
 
 			// create scripts
 			let batFile = path.join(dataPath,'rundemon.bat') // demon runner (looped)

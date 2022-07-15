@@ -21,7 +21,9 @@
     "electronmon": "^1.1.2"
   },
   "build": {
-    "asar": false,
+    "asarUnpack": [
+      "server/"
+    ],
     "productName": "Dont-Change-My-Theme",
     "appId": "com.github.qwreey75.dontchangemytheme",
     "files": [
@@ -32,7 +34,7 @@
       "server/"
     ],
     "win": {
-      "icon": "assets/icons/win/icon.ico",
+      "icon": "favicon.ico",
       "target": [
         "portable"
       ]
