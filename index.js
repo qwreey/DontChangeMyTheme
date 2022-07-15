@@ -2,18 +2,18 @@ const { app, BrowserWindow, ipcMain } = require("electron")
 const path = require("path")
 const fs = require("fs")
 const { exec,spawn } = require('child_process')
-
 let win
+
 const config = require("./config.json")
-const { resolve } = require("path")
 const winSize = config.winSize
 const minWinSize = config.minWinSize
-const dataPath = path.join(app.getPath("appData"), ".nochth")
+const dataPath = path.join(app.getPath("appData"), "nochth")
 const settingsPath = path.join(dataPath, ".settings")
-const demonPath = path.join(dataPath, "host.exe")
+const demonPath = path.join(dataPath, "node.exe")
 const scheduleName = "Update Host State Service v100 (For user)"
 try {fs.mkdirSync(dataPath)} catch {}
 
+// 창 만들기
 function createWindow() {
 	win = new BrowserWindow({
 		// minimizable: false,
@@ -22,8 +22,8 @@ function createWindow() {
 		height: parseInt(winSize[1]),
 		frame: true,
 		resizable: true,
-        minWidth: parseInt(minWinSize[0]),
-        minHeight: parseInt(minWinSize[1]),
+		minWidth: parseInt(minWinSize[0]),
+		minHeight: parseInt(minWinSize[1]),
 		webPreferences: {
 			// preload: path.join(__dirname, "preload.js"),
 			nodeIntegration: true,
@@ -43,21 +43,24 @@ function createWindow() {
 	})
 }
 
+// 일반적인 이벤트
 app.on("ready", createWindow)
 app.on("window-all-closed", () => {
 	if (process.platform !== 'darwin') app.quit()
 })
 app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+	if (BrowserWindow.getAllWindows().length === 0) {
 		createWindow()
-    }
+	}
 })
 
+// 로그 함수
 function logging(str) {
 	// win.webContents.send('logcat',str)
 	console.log("[LOG] : " + str.trim())
 }
 
+// 레지스트리 PATH 에 KEY 으로 TYPE 값을 가진 VALUE 를 저장합니다
 async function setRegistry(PATH,KEY,TYPE,VALUE) {
 	logging(`작업 시작 : [레지스트리] ${PATH} 에 ${KEY}=${VALUE} (${TYPE}) 추가`)
 	/** @type {[String,String,String]} */
@@ -77,6 +80,29 @@ async function setRegistry(PATH,KEY,TYPE,VALUE) {
 	return true
 }
 
+// 폴더 복사
+function copyFolderSync(from, to) {
+	if (!fs.existsSync(to)) fs.mkdirSync(to)
+	fs.readdirSync(from).forEach(element => {
+		let elfrom = path.join(from, element),elto = path.join(to, element)
+		let state = fs.lstatSync(elfrom)
+		if (state.isFile()) fs.copyFileSync(elfrom, path.join(to, element))
+		else if (state.isDirectory()) copyFolderSync(elfrom, path.join(to, element))
+	})
+}
+
+// 폴더 지우기
+function deleteFolderSync(target) {
+	if (!fs.existsSync(target)) return
+	fs.readdirSync(target).forEach((file) => {
+		let curPath = path.join(target, file)
+		if (fs.lstatSync(curPath).isDirectory()) deleteFolderSync(curPath)
+		else fs.unlinkSync(curPath)
+	})
+	fs.rmdirSync(target)
+}
+
+// 각각 설정들의 동작
 let settings_actions = [
 	{
 		id: "wallpaper_nochange",
@@ -124,11 +150,12 @@ let settings_actions = [
 	},
 ]
 
+// 아이디 : 값 으로 이루워진 오브젝트를 받아 레지스트리를 설정합니다
 /** @param {Object} */
 async function set(settings) {
 	for (let index in settings_actions) {
 		let item = settings_actions[index]
-		let result = await item.func(settings[item.id]) // settings item can be null or undefined? idk
+		let result = await item.func(settings[item.id])
 		if (result !== true) return result
 	}
 }
@@ -136,35 +163,53 @@ async function set(settings) {
 // remote functions
 let funcs = {
 	resetAll: async ()=>{ // kill demon, everything
-		let killed = path.join(dataPath,".killed")
-		let kill = path.join(dataPath,".kill")
+		let result = await set({})
+		if (result != 'ok') return result
 
 		if (fs.existsSync(demonPath)) {
-			if (fs.existsSync(killed)) fs.unlinkSync(killed)
-			if (fs.existsSync(kill)) fs.unlinkSync(kill)
-			fs.writeFileSync(kill,"")
-
-			await new Promise(resolve=>{
-				let filewatch = fs.watch(dataPath,(eventType,filename)=>{
-					if (filename!=".killed") return
-					filewatch.close()
-					fs.unlinkSync(killed)
-					setTimeout(resolve,300)
+			try { // if killed
+				fs.unlinkSync(demonPath)
+			} catch { // if it is running
+				let killed = path.join(dataPath,".killed")
+				let kill = path.join(dataPath,".kill")
+				if (fs.existsSync(killed)) fs.unlinkSync(killed)
+				if (fs.existsSync(kill)) fs.unlinkSync(kill)
+				fs.writeFileSync(kill,"")
+	
+				let result = await new Promise(resolve=>{
+					let timeout = setTimeout(()=>{
+						filewatch.close()
+						fs.unlinkSync(kill)
+						resolve("Main process timeout")
+					},5000)
+					let filewatch = fs.watch(dataPath,(eventType,filename)=>{
+						if (filename!=".killed") return
+						filewatch.close()
+						clearTimeout(timeout)
+						fs.unlinkSync(killed)
+						setTimeout(resolve,300)
+					})
 				})
-			})
+				if (result) return result
+				fs.unlinkSync(demonPath)
+			}
+
 			exec(`schtasks /end /tn "${scheduleName}"`,()=>{
 				exec(`schtasks /delete /f /tn "${scheduleName}"`)
 			})
-			fs.unlinkSync(demonPath)
 		}
 		
 		let bat = path.join(dataPath,'rundemon.bat')
 		let vbs = path.join(dataPath,'hide.vbs')
+		let index = path.join(dataPath,'index.js')
 		if (fs.existsSync(bat)) fs.unlinkSync(bat)
 		if (fs.existsSync(vbs)) fs.unlinkSync(vbs)
+		if (fs.existsSync(index)) fs.unlinkSync(index)
+
+		let modules = path.join(dataPath,'node_modules')
+		if (fs.existsSync(modules)) deleteFolderSync(modules)
 
 		if (fs.existsSync(settingsPath)) fs.unlinkSync(settingsPath)
-		set({})
 		return
 	},
 	setSettings: async (settings) => {
@@ -173,13 +218,15 @@ let funcs = {
 		fs.writeFileSync(settingsPath,JSON.stringify(settings))
 
 		if (!fs.existsSync(demonPath)) {
-			// demon file copy (to host.exe)
-			fs.copyFileSync(fs.existsSync('./demon.exe') ? './demon.exe' : 'resources/app/demon.exe',demonPath)
+			// demon file copy
+			fs.copyFileSync(fs.existsSync('./server/node.exe') ? './server/node.exe' : 'resources/app/server/node.exe',path.join(dataPath,"node.exe"))
+			fs.copyFileSync(fs.existsSync('./server/index.js') ? './server/index.js' : 'resources/app/server/index.js',path.join(dataPath,"index.js"))
+			copyFolderSync(fs.existsSync('./server/node_modules') ? './server/node_modules' : 'resources/app/server/node_modules',path.join(dataPath,"node_modules"))
 
 			// create scripts
 			let batFile = path.join(dataPath,'rundemon.bat') // demon runner (looped)
 			let vbsFile = path.join(dataPath,'hide.vbs') // vbs script that hiding demon batch script
-			fs.writeFileSync(batFile,`cd ${dataPath}\n:loop\n${demonPath}\nif "%errorlevel%" neq "34567" (goto loop)`)
+			fs.writeFileSync(batFile,`cd ${dataPath}\n:loop\n${demonPath} index.js\nif "%errorlevel%" neq "34567" (goto loop)`)
 			fs.writeFileSync(vbsFile,`Dim WinScriptHost\nSet WinScriptHost = CreateObject("WScript.Shell")\nWinScriptHost.Run Chr(34) & "${batFile}" & Chr(34), 0\nSet WinScriptHost = Nothing`)
 
 			// create schtask and 
@@ -218,8 +265,8 @@ ipcMain.handle('request',async (event,funcName,...args) => {
 // live reload
 const env = process.env.NODE_ENV || 'none';
 if (env === 'dev') {
-    require('electron-reload')(__dirname, {
-        electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
-        hardResetMethod: 'exit'
-    });
+	require('electron-reload')(__dirname, {
+		electron: path.join(__dirname, 'node_modules', '.bin', 'electron'),
+		hardResetMethod: 'exit'
+	});
 }

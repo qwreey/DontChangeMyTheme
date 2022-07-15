@@ -15,9 +15,6 @@
     "scripts": {
         "build": "pkg . -compress Brotli --output ../demon"
     },
-    "devDependencies": {
-        "pkg": "^5.7.0"
-    },
     "dependencies": {
         "registry-changes-detector": "^4.0.2"
     }

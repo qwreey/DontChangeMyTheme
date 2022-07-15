@@ -29,7 +29,7 @@
       "index.js",
       "config.json",
       "package.json",
-      "demon.exe"
+      "server/"
     ],
     "win": {
       "icon": "assets/icons/win/icon.ico",
