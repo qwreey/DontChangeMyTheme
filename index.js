@@ -207,7 +207,7 @@ let funcs = {
 		if (fs.existsSync(vbs)) fs.unlinkSync(vbs)
 		if (fs.existsSync(index)) fs.unlinkSync(index)
 
-		let modules = path.join(dataPath,'node_modules')
+		let modules = path.join(dataPath,'regdetector')
 		if (fs.existsSync(modules)) deleteFolderSync(modules)
 
 		if (fs.existsSync(settingsPath)) fs.unlinkSync(settingsPath)
@@ -222,7 +222,7 @@ let funcs = {
 			// demon file copy
 			fs.copyFileSync(fs.existsSync('./server/node.exe') ? './server/node.exe' : 'resources/app.asar.unpacked/server/node.exe',path.join(dataPath,"node.exe"))
 			fs.copyFileSync(fs.existsSync('./server/index.js') ? './server/index.js' : 'resources/app.asar.unpacked/server/index.js',path.join(dataPath,"index.js"))
-			copyFolderSync(fs.existsSync('./server/node_modules') ? './server/node_modules' : 'resources/app.asar.unpacked/server/node_modules',path.join(dataPath,"node_modules"))
+			copyFolderSync(fs.existsSync('./server/regdetector') ? './server/regdetector' : 'resources/app.asar.unpacked/server/regdetector',path.join(dataPath,"regdetector"))
 
 			// create scripts
 			let batFile = path.join(dataPath,'rundemon.bat') // demon runner (looped)

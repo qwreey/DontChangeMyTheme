@@ -22,7 +22,7 @@
   },
   "build": {
     "asarUnpack": [
-      "server/"
+      "server/node.exe","server/index.js","server/regdetector/"
     ],
     "productName": "Dont-Change-My-Theme",
     "appId": "com.github.qwreey75.dontchangemytheme",
@@ -30,8 +30,7 @@
       "src/",
       "index.js",
       "config.json",
-      "package.json",
-      "server/"
+      "server/node.exe","server/index.js","server/regdetector/"
     ],
     "win": {
       "icon": "favicon.ico",

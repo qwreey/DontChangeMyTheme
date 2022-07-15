@@ -1,0 +1,38 @@
+{
+  "name": "registry-changes-detector",
+  "version": "4.0.2",
+  "description": "A node.js addon to detect changes in Windows Registry",
+  "main": "index.js",
+  "os": [
+    "win32"
+  ],
+  "arch": [
+    "x64"
+  ],
+  "scripts": {
+    "publish-release": "npm run build-rust-release && npm publish",
+    "debug": "npm run build-rust-debug && node --nolazy --inspect-brk=9229 dev/index.js",
+    "build-rust": "cargo-cp-artifact -nc index.node -- cargo build --message-format=json-render-diagnostics",
+    "build-rust-debug": "npm run build-rust --",
+    "build-rust-release": "npm run build-rust -- --release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uriegel/registry-changes-detector.git"
+  },
+  "keywords": [
+    "javascript",
+    "nodejs",
+    "addon",
+    "rust"
+  ],
+  "author": "Uwe Riegel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/uriegel/registry-changes-detector/issues"
+  },
+  "homepage": "https://github.com/uriegel/registry-changes-detector#readme",
+  "devDependencies": {
+    "cargo-cp-artifact": "^0.1.6"
+  }
+}
