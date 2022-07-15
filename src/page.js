@@ -301,5 +301,9 @@ async function main() {
 			} else { description.textContent = "일치하지 않습니다" }
 		})
 	}
+
+	// 버전 글자 불러오기
+	let versionText = document.querySelector("#app-version")
+	versionText.textContent = "버전 " + (await electron.ipcRenderer.invoke("request","getVersion"))
 }
 main()

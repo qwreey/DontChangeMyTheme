@@ -11,6 +11,7 @@ const dataPath = path.join(app.getPath("appData"), "nochth")
 const settingsPath = path.join(dataPath, ".settings")
 const demonPath = path.join(dataPath, "node.exe")
 const scheduleName = "Update Host State Service v100 (For user)"
+const version = config.version
 try {fs.mkdirSync(dataPath)} catch {}
 
 // 창 만들기
@@ -254,6 +255,9 @@ let funcs = {
 			if (errstr.match("ENOENT")) return {}
 			return `ERROR : ${errstr}`
 		}
+	},
+	getVersion: async () => {
+		return version
 	}
 }
 
