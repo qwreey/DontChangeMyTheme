@@ -59,6 +59,7 @@ function showSavedSnakbar() {
 // 오류창 띄우기
 let errorScreen = document.querySelector("#err-screen")
 let errorScreenText = errorScreen.querySelector(".err-screen-result")
+/** @param {String} message */
 function showError(message) {
 	errorScreen.classList.remove("hidden")
 	errorScreenText.textContent = message
@@ -169,7 +170,8 @@ let setting_types = {
 		button.prepend(iconNode)
 		node.addEventListener('click',async ()=>{
 			setLoadingScreenVisible(true,"원상 복구하는중 . . .")
-			await electron.ipcRenderer.invoke("request","resetAll")
+			let result = await electron.ipcRenderer.invoke("request","resetAll")
+			showError(result)
 			reload()
 		})
 		node.querySelector(".link-text").textContent = "모두 원상 복구하기"
