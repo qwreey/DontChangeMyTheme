@@ -164,7 +164,7 @@ async function set(settings) {
 // remote functions
 let funcs = {
 	resetAll: async ()=>{ // kill demon, everything
-		let result = await set({})
+		let result = await set({}) || 'ok'
 		if (result != 'ok') return result
 
 		if (fs.existsSync(demonPath)) {
@@ -211,7 +211,7 @@ let funcs = {
 		if (fs.existsSync(modules)) deleteFolderSync(modules)
 
 		if (fs.existsSync(settingsPath)) fs.unlinkSync(settingsPath)
-		return
+		return 'ok'
 	},
 	setSettings: async (settings) => {
 		let result = (await set(settings)) || 'ok'

@@ -171,8 +171,8 @@ let setting_types = {
 		node.addEventListener('click',async ()=>{
 			setLoadingScreenVisible(true,"원상 복구하는중 . . .")
 			let result = await electron.ipcRenderer.invoke("request","resetAll")
-			showError(result)
-			reload()
+			if (result!='ok') showError(result)
+			else reload()
 		})
 		node.querySelector(".link-text").textContent = "모두 원상 복구하기"
 		return node
